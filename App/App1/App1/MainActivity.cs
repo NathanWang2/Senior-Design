@@ -8,12 +8,10 @@ using Android.OS;
 
 namespace App1
 {
-    [Activity(Label = "App1", MainLauncher = true, Icon = "@drawable/icon")]
+    [Activity(Label = "Comfort Control", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
     {
-        int Temperature = 1;
-		int Heat = 1;
-
+		int Temperature = 70;
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
@@ -22,19 +20,16 @@ namespace App1
             SetContentView(Resource.Layout.Main);
             // Get our button from the layout resource,
             // and attach an event to it
+			//EditText setTemp = new EditText(this);
+			var setTemp = FindViewById<EditText>(Resource.Id.setTemp);
 
-			Button button = FindViewById<Button>(Resource.Id.MyButton);
-			button.Click += delegate { button.Text = string.Format("{0} clicks!", Temperature++); };
+			ImageButton coldButton = FindViewById<ImageButton>(Resource.Id.ColdButton);
+			coldButton.Click += delegate { setTemp.Text = string.Format("{0} degrees", Temperature--); };
 
-			//EditText setTemp = FindViewById<EditText>(Resource.Id.setTemp);
-			Button button1 = FindViewById<Button>(Resource.Id.button1);
-			button1.Click += delegate { button1.Text = string.Format("{0} clicks!", Heat++); };
-
-			TextView setTemp = new TextView(this);
-			setTemp.Text = button1.Text;
-
-
-
+			ImageButton hotButton = FindViewById<ImageButton>(Resource.Id.HotButton);
+			hotButton.Click += delegate { setTemp.Text = string.Format("{0} degrees", Temperature++); };
+			//Button button1 = FindViewById<Button>(Resource.Id.button1);
+			//button1.Click += delegate { setTemp.Text = string.Format("{0} degrees", Temperature--);};
         }
     }
 }

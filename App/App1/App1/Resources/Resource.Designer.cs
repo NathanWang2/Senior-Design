@@ -45,7 +45,13 @@ namespace App1
 		{
 			
 			// aapt resource value: 0x7f020000
-			public const int Icon = 2130837504;
+			public const int cold = 2130837504;
+			
+			// aapt resource value: 0x7f020001
+			public const int hot = 2130837505;
+			
+			// aapt resource value: 0x7f020002
+			public const int Icon = 2130837506;
 			
 			static Drawable()
 			{
@@ -60,11 +66,11 @@ namespace App1
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f050003
-			public const int MyButton = 2131034115;
-			
 			// aapt resource value: 0x7f050004
-			public const int button1 = 2131034116;
+			public const int ColdButton = 2131034116;
+			
+			// aapt resource value: 0x7f050003
+			public const int HotButton = 2131034115;
 			
 			// aapt resource value: 0x7f050000
 			public const int linearLayout1 = 2131034112;
@@ -107,11 +113,11 @@ namespace App1
 			// aapt resource value: 0x7f040002
 			public const int ApplicationName = 2130968578;
 			
-			// aapt resource value: 0x7f040001
-			public const int Down = 2130968577;
-			
 			// aapt resource value: 0x7f040000
-			public const int Up = 2130968576;
+			public const int Colder = 2130968576;
+			
+			// aapt resource value: 0x7f040001
+			public const int Hotter = 2130968577;
 			
 			static String()
 			{

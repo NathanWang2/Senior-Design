@@ -5,6 +5,18 @@
     android:layout_height="match_parent"
     android:minWidth="25px"
     android:minHeight="25px">
+<!--<TextView
+        android:text="Room Temperature"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="80dp"
+        android:layout_height="50dp"
+        android:id="@+id/realTempTitle" />
+    <TextView
+        android:text="Set Temperature"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="80dp"
+        android:layout_height="50dp"
+        android:id="@+id/setTempTitle" />-->
     <LinearLayout
         android:orientation="horizontal"
         android:minWidth="25px"
@@ -12,25 +24,31 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/linearLayout1">
-        <TextView
-            android:text="Text"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+        <EditText
+            android:text="Room Temp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:id="@+id/realTemp" />
-        <TextView
-            android:text="Text"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+        <EditText
+            android:text="SetTemp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:id="@+id/setTemp" />
-        <Button
-            android:id="@+id/MyButton"
-            android:text="@string/Up"
-            android:layout_width="200px"
-            android:layout_height="wrap_content" />
-        <Button
-            android:text="@string/Down"
-            android:id="@+id/button1"
-            android:layout_width="200px"
-            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/HotButton"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="10dip"
+            android:layout_marginLeft="10dip"
+            android:padding="100dip"
+            android:src="@drawable/hot" />
+        <ImageButton
+            android:id="@+id/ColdButton"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="10dip"
+            android:layout_marginLeft="10dip"
+            android:padding="100dip"
+            android:src="@drawable/cold" />
     </LinearLayout>
 </LinearLayout>
