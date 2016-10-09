@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:minWidth="25px"
-    android:minHeight="25px">
-<!--<TextView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<!--
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/linearLayout1">
+
+<TextView
         android:text="Room Temperature"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_width="80dp"
@@ -16,24 +26,18 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_width="80dp"
         android:layout_height="50dp"
-        android:id="@+id/setTempTitle" />-->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/linearLayout1">
-        <EditText
+        android:id="@+id/setTempTitle" />
+    <EditText
             android:text="Room Temp"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:id="@+id/realTemp" />
-        <EditText
-            android:text="SetTemp"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:id="@+id/setTemp" />
+        <AbsoluteLayout
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/absoluteLayout1" />
         <ImageButton
             android:id="@+id/HotButton"
             android:layout_width="72dp"
@@ -42,13 +46,66 @@
             android:layout_marginLeft="10dip"
             android:padding="100dip"
             android:src="@drawable/hot" />
+        <EditText
+            android:text="SetTemp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:id="@+id/setTemp" />
+        <ImageButton
+            android:id="@+id/ColdButton"
+            android:layout_width="72dp"
+            android:layout_height'="72dp"
+            android:layout_marginTop="10dip"
+            android:layout_marginLeft="10dip"
+            android:padding="100dip"
+            android:src="@drawable/cold" />-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="#E0EEEE">
+        <TextView
+            android:text="Living Room"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="60dp"
+            android:id="@+id/Roomname" />
+        <TextView
+            android:text="Room Temp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:textColor="@android:color/black"
+            android:layout_below="@id/Roomname"
+            android:id="@+id/realTemp"
+            android:gravity="center" />
+        <TextView
+            android:text="SetTemp"
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="15dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/realTemp"
+            android:textColor="@android:color/black"
+            android:textSize="20dp"
+            android:id="@+id/setTemp"
+            android:gravity="center" />
+        <ImageButton
+            android:id="@+id/HotButton"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginRight="10dp"
+            android:layout_above="@id/setTemp"
+            android:layout_alignRight="@id/setTemp"
+            android:padding="100dip"
+            android:src="@drawable/hot" />
         <ImageButton
             android:id="@+id/ColdButton"
             android:layout_width="72dp"
             android:layout_height="72dp"
-            android:layout_marginTop="10dip"
-            android:layout_marginLeft="10dip"
+            android:layout_marginRight="10dp"
+            android:layout_below="@id/setTemp"
+            android:layout_alignEnd="@id/setTemp"
             android:padding="100dip"
             android:src="@drawable/cold" />
-    </LinearLayout>
+    </RelativeLayout>
 </LinearLayout>

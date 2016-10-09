@@ -73,7 +73,7 @@ namespace App1
 			public const int HotButton = 2131034115;
 			
 			// aapt resource value: 0x7f050000
-			public const int linearLayout1 = 2131034112;
+			public const int Roomname = 2131034112;
 			
 			// aapt resource value: 0x7f050001
 			public const int realTemp = 2131034113;
@@ -118,6 +118,9 @@ namespace App1
 			
 			// aapt resource value: 0x7f040001
 			public const int Hotter = 2130968577;
+			
+			// aapt resource value: 0x7f040003
+			public const int Roomname = 2130968579;
 			
 			static String()
 			{

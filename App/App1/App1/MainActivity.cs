@@ -18,18 +18,16 @@ namespace App1
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
-            // Get our button from the layout resource,
-            // and attach an event to it
-			//EditText setTemp = new EditText(this);
-			var setTemp = FindViewById<EditText>(Resource.Id.setTemp);
-
+			// Get the Set Temperature Textbox
+			var setTemp = FindViewById<TextView>(Resource.Id.setTemp);
+			// Get our button from the layout resource,
+			// and attach an event to it
 			ImageButton coldButton = FindViewById<ImageButton>(Resource.Id.ColdButton);
-			coldButton.Click += delegate { setTemp.Text = string.Format("{0} degrees", Temperature--); };
-
+			coldButton.Click += delegate { setTemp.Text = string.Format("{0} degrees", --Temperature); };
+			// This is how to change colors for Heating and Cooling Options
+			//coldButton.Click += delegate { coldButton.SetBackgroundColor(Android.Graphics.Color.WhiteSmoke); };
 			ImageButton hotButton = FindViewById<ImageButton>(Resource.Id.HotButton);
-			hotButton.Click += delegate { setTemp.Text = string.Format("{0} degrees", Temperature++); };
-			//Button button1 = FindViewById<Button>(Resource.Id.button1);
-			//button1.Click += delegate { setTemp.Text = string.Format("{0} degrees", Temperature--);};
+			hotButton.Click += delegate { setTemp.Text = string.Format("{0} degrees", ++Temperature); };
         }
     }
 }
