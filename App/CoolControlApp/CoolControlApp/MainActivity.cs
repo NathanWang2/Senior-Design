@@ -6,7 +6,7 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 
-namespace CoolControlApp
+namespace CoolControlAppx
 {
     [Activity(Label = "CoolControlApp", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
