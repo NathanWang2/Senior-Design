@@ -1,6 +1,7 @@
 import sys
 import time
 import json
+import socket
 import threading
 onPi = False
 if (onPi): import RPi.GPIO as GPIO
@@ -39,14 +40,15 @@ class Room(object):
     current_temp = 0
     set_temp = 70
     name = "Test"
-    temperature_probe = None
+    probe_ip = None
     vents = []
     schedules = []
 
-    def __init__(self, _current_temp, _set_temp, _name):
+    def __init__(self, _current_temp = None, _set_temp = None, _name = None, _probe_ip = None):
         self.current_temp = _current_temp
         self.set_temp = _set_temp
         self.name = _name
+        self.probe_ip = _probe_ip
 
     def inc_set_temp(self):
         self.set_temp += 1
@@ -63,6 +65,7 @@ class Room(object):
             'set_temp':self.set_temp,
             'name':self.name,
             'vents':self.vents,
+            'probe_ip':self.probe_ip,
             'schedules':self.schedules
         }
         return json.dumps(data)
@@ -72,6 +75,7 @@ class Room(object):
         self.current_temp = data['current_temp']
         self.set_temp = data['set_temp']
         self.name = data['name']
+        self.probe_ip = data['probe_ip']
         for vent in data['vents']:
             self.vents.append(vent)
         for schedule in data['schedules']:
@@ -277,9 +281,9 @@ RoomW = RoomWindow("room")
 ScheduleW = ScheduleWindow("schedule")
 
 rooms = []
-# rooms.append(Room(1, 1, "Room 1"))
-# rooms.append(Room(2, 2, "Room 2"))
-# rooms.append(Room(3, 3, "Room 3"))
+rooms.append(Room(1, 1, "Room 1", "192.168.41.44"))
+rooms.append(Room(2, 2, "Room 2", "192.168.41.44"))
+rooms.append(Room(3, 3, "Room 3", "192.168.41.44"))
 
 
 def create_room(_current_temp, _set_temp, _name, _vents):
@@ -298,7 +302,7 @@ def load_rooms():
             _vents = room["vents"]
             _name = room["name"]
             print(_current_temp, _set_temp, _name)
-            create_room(int(_current_temp), int(_set_temp), _name, _vents)
+            #rooms.append(room)
 
 def save_rooms():
     room_data = []
@@ -306,6 +310,19 @@ def save_rooms():
         room_data.append(room.to_json())
     with open('rooms.json', 'w') as fp:
         json.dump(room_data, fp)
+
+def get_tempF_from_probe(probe_ip):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect(probe_ip, 80)
+    s.send("temp")
+    temp = ''
+    while 1:
+        data = s.recv(1024)
+        if not data: break
+        temp += data
+    s.close()
+    temp = float(temp) * 9 / 5 + 32
+    return temp
 
 def monitor_system():
     ac_mode = "cool"
@@ -316,7 +333,7 @@ def monitor_system():
         too_low = []
 
         for room in rooms:
-            # get temps of room
+            #room.current_temp = get_tempF_from_probe(room.probe_ip)
             if (room.current_temp > room.set_temp + 2):
                 too_high.append(room)
             elif (room.current_temp < room.set_temp - 2):
@@ -325,6 +342,8 @@ def monitor_system():
         if (len(too_high) > 0 and len(too_low) > 0):
             # notify user that rooms need cool AND heat
             pass
+        elif (len(too_high) == 0 and len(too_low) == 0):
+            print("Rooms are conditioned..")
 
         # decide which mode to use
         if (len(too_high) > len(too_low)):
@@ -354,8 +373,8 @@ def monitor_system():
 
 # motor pin 7
 
-# save_rooms()
-load_rooms()
+save_rooms()
+#load_rooms()
 
 MainW.setup()
 RoomW.setup()
