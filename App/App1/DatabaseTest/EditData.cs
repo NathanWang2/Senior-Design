@@ -19,6 +19,7 @@ namespace DatabaseTest
 	{
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
+			string table = "homeinfo";
 			var docsFolder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
 			var pathToDatabase = System.IO.Path.Combine(docsFolder, "db_sqlnet.db");
 

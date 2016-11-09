@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="Colder">Click Me to make it colder!</string>
-    <string name="Hotter">Click Me to make it warmer!</string>
-    <string name="ApplicationName">Wonder Why I cannot get it to work</string>
-	<string name="Roomname">Living Room</string>
-</resources>

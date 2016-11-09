@@ -11,6 +11,7 @@ using Android.Views;
 using Android.Widget;
 
 using SQLite;
+using MySql.Data.MySqlClient;
 
 // To add information for the application
 namespace DatabaseTest
@@ -21,7 +22,10 @@ namespace DatabaseTest
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
-
+			string table = "homeinfo";
+			MySqlConnection connection = new MySqlConnection("Server=sql9.freemysqlhosting.net;Port=3306;Database=sql9142393;" +
+															   "User Id=sql9142393;Password=pATpALsxs2;charset=utf8");
+			connection.Open();
 			// Create your application here
 			SetContentView(Resource.Layout.InsertInfo);
 			var docsFolder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
@@ -35,10 +39,14 @@ namespace DatabaseTest
 				EditText roomSetTemp = FindViewById<EditText>(Resource.Id.setTemp);
 				//var RoomID = insertUpdateData(new Database { RoomName = (string)RoomName.Text, 
 				//	SetTemp = (string)SetTemp.Text }, pathToDatabase);
-				var insertdata = insertUpdateData(new Room { RoomName = roomname.Text, 
-					SetTemp = roomSetTemp.Text}, pathToDatabase);
+				//var insertdata = insertUpdateData(new Room { RoomName = roomname.Text, 
+				//	SetTemp = roomSetTemp.Text}, pathToDatabase);
 
-				TextView test = FindViewById<TextView>(Resource.Id.DBTitle);
+				// Writing and pushing info to database
+				MySqlCommand cmd = new MySqlCommand("INSERT INTO " + table +"(RoomName, SetTemp) VALUES (@RoomName, @SetTemp)",connection);
+				cmd.Parameters.AddWithValue("@RoomName", roomname.Text);
+				cmd.Parameters.AddWithValue("@SetTemp", roomSetTemp.Text);
+				cmd.ExecuteNonQuery();
 				// Retrieve Information from Table in Database var list = db.Get<Room>(Rname);
 				// To retrieve certain columns from primary key list.RoomName;
 				roomname.Text = "";

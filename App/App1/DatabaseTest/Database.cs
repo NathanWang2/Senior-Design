@@ -1,5 +1,7 @@
 ﻿using System;
 using SQLite;
+using MySql;
+
 namespace DatabaseTest
 {
 	[Table("DataTable")]

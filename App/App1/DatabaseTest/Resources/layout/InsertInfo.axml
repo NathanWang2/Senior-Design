@@ -36,10 +36,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/SaveData" />
-    <TextView
-        android:text="Database Retrival"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/DBTitle" />
 </LinearLayout>
