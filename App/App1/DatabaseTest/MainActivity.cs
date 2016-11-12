@@ -10,17 +10,19 @@ using System.Net;
 using MySql.Data.MySqlClient;
 using System.Data;
 using Java.Lang;
+using Android.Content;
 
 namespace DatabaseTest
 {
 	[Activity(Label = "DatabaseTest", MainLauncher = true, Icon = "@mipmap/icon")]
 	public class MainActivity : Activity
 	{
-		//public string table { get; }
-		//public MainActivity()
-		//{
-		//	table = "homeinfo";
-		//}
+		public static string currentRoomname = "";
+		public static string Name
+		{
+			get { return currentRoomname; }
+			set { currentRoomname = value; }
+		}
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
@@ -53,7 +55,7 @@ namespace DatabaseTest
 			{
 				// Creates the Table
 				// INSERT Schedule where the space is
-				string query = "CREATE TABLE" + table + @"(
+				string query = "CREATE TABLE " + table + @"(
 						RoomName VARCHAR(150) PRIMARY KEY, 
 						SetTemp INT(3), 
 						RoomTemp INT(3),
@@ -75,6 +77,8 @@ namespace DatabaseTest
 			// Pulls info from database to list them on the drop down list
 			Spinner dropdown = FindViewById<Spinner>(Resource.Id.Roomname);
 			var namelist = new List<string>();
+			// This populates the dropdown list with all the roomnames
+
 			try
 			{
 				string read = "SELECT RoomName FROM " + table;
@@ -97,7 +101,9 @@ namespace DatabaseTest
 				var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, namelist);
 				Toast.MakeText(this, "It Broke", ToastLength.Short).Show();
 			}
-			string currentRoomname, replaceRoomname = "";
+
+			// This updaates the will get the set temp for the item selected in the dropdown list
+			string replaceRoomname = "";
 			try
 			{
 
@@ -125,23 +131,22 @@ namespace DatabaseTest
 			{
 				Toast.MakeText(this, ex.Message, ToastLength.Long).Show();
 			}
-			//String text = dropdown.getitem.toString();
-
 			ImageButton HotButton = FindViewById<ImageButton>(Resource.Id.HotButton);
 			HotButton.Click += (object sender, EventArgs e) =>
 			{
-				int SETTEMP = ++Temp;
-				Toast.MakeText(this, "Hot Button Hit", ToastLength.Short).Show();
-				MySqlCommand hot = new MySqlCommand("UPDATE homeinfo SET SetTemp='"+SETTEMP+"' WHERE RoomName = '"+ replaceRoomname +"'",connection);
+				int hotTemp = ++Temp;
+				MySqlCommand hot = new MySqlCommand("UPDATE homeinfo SET SetTemp='"+hotTemp+"' WHERE RoomName = '"+ replaceRoomname +"'",connection);
 				hot.ExecuteNonQuery();
-				StartActivity(typeof(MainActivity));
-				//setTemp.Text = string.Format("{0} Degrees", ++Temp);
+				setTemp.Text = string.Format("{0} Degrees", hotTemp);
 				//var insertdata = insertUpdateData(new Room { SetTemp = txtResult.Text }, pathToDatabase);
 			};
 			ImageButton ColdButton = FindViewById<ImageButton>(Resource.Id.ColdButton);
 			ColdButton.Click += (object sender, EventArgs e) =>
 			{
-				setTemp.Text = string.Format("{0} Degrees", --Temp);
+				int coldTemp = --Temp;
+				MySqlCommand cold = new MySqlCommand("UPDATE homeinfo SET SetTemp='" + coldTemp + "' WHERE RoomName = '" + replaceRoomname + "'", connection);
+				cold.ExecuteNonQuery();
+				setTemp.Text = string.Format("{0} Degrees", coldTemp);
 				//var insertdata = insertUpdateData(new Room { SetTemp = txtResult.Text }, pathToDatabase);
 			};
 			// Add New Entries
@@ -152,8 +157,14 @@ namespace DatabaseTest
 			};
 			// Lets the user change the selected room information
 			Button EditSettings = FindViewById<Button>(Resource.Id.Edit);
-			EditSettings.Click += (object sender, EventArgs e) =>
-				StartActivity(typeof(EditData));
+			//EditSettings.Click += (object sender, EventArgs e) =>
+			//	StartActivity(typeof(EditData));
+			EditSettings.Click += delegate {
+				var Edit= new Intent(this, typeof(EditData));
+				Edit.PutExtra("roomData", currentRoomname);
+				//Edit.PutExtra("roomData", 15);
+				StartActivity(Edit);
+};
 		}
 
 

@@ -5,23 +5,20 @@
     android:layout_height="match_parent">
 <!-- For looking with ID -->
     <TextView
-        android:text="Insert ID Room Name"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Title"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/TitleRoomNameID" />
-    <EditText
+        android:id="@+id/RoomTitle" />
+    <TextView
+        android:text="Roomname"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/RoomName" />
-    <Button
-        android:text="Find Data"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/FindData" />
+        android:id="@+id/curentRoomname" />
 <!-- For Updating Info -->
     <TextView
-        android:text="Update Information"
+        android:text="Change the name of the room"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,20 +32,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/Updatebtn" />
-<!-- Delete Info-->
-    <TextView
-        android:text="Remove exiesting information. Input ID."
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/TitleDeleteID" />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/DeleteID" />
-    <Button
-        android:text="Delete"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/Deletebtn" />
 </LinearLayout>

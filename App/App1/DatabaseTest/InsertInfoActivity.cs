@@ -43,6 +43,10 @@ namespace DatabaseTest
 				//	SetTemp = roomSetTemp.Text}, pathToDatabase);
 
 				// Writing and pushing info to database
+				if (roomSetTemp.Text == "")
+				{
+					roomSetTemp.Text = "0";
+				}
 				MySqlCommand cmd = new MySqlCommand("INSERT INTO " + table +"(RoomName, SetTemp) VALUES (@RoomName, @SetTemp)",connection);
 				cmd.Parameters.AddWithValue("@RoomName", roomname.Text);
 				cmd.Parameters.AddWithValue("@SetTemp", roomSetTemp.Text);
@@ -51,7 +55,7 @@ namespace DatabaseTest
 				// To retrieve certain columns from primary key list.RoomName;
 				roomname.Text = "";
 				roomSetTemp.Text = "";
-				//StartActivity(typeof(MainActivity));
+				StartActivity(typeof(MainActivity));
 			};
 		}
 		// Creates the Database
