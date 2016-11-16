@@ -4,38 +4,37 @@ using Android.OS;
 
 using System;
 using System.Collections.Generic;
-using SQLite;
-//using System.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Net;
 using MySql.Data.MySqlClient;
 using System.Data;
 using Java.Lang;
 using Android.Content;
 
-namespace DatabaseTest
+namespace LastResortForReal
 {
-	[Activity(Label = "DatabaseTest", MainLauncher = true, Icon = "@mipmap/icon")]
+	[Activity(Label = "LastResortForReal", MainLauncher = true)]
 	public class MainActivity : Activity
 	{
-		public static string currentRoomname = "";
-		public static string Name
-		{
-			get { return currentRoomname; }
-			set { currentRoomname = value; }
-		}
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
-			string table = "homeinfo";
+
+
 			// Set our view from the "main" layout resource
 			SetContentView(Resource.Layout.Main);
+
 			TextView setTemp = FindViewById<TextView>(Resource.Id.setTemp);
 			TextView realTemp = FindViewById<TextView>(Resource.Id.realTemp);
 			//var result = createDatabase(pathToDatabase);
 			// Adds to the setTemp
 			int Temp = 0;
-			MySqlConnection connection = new MySqlConnection("Server=sql9.freemysqlhosting.net;Port=3306;Database=sql9142393;" +
-															   "User Id=sql9142393;Password=pATpALsxs2;charset=utf8");
+			MySqlConnection connection = new MySqlConnection("Server=sql9.freemysqlhosting.net;" +
+			                                                 "Port=3306;" +
+			                                                 "Database=sql9144471;"+ 
+															 "User Id=sql9144471;" +
+			                                                 "Password=gAj17T1zmr;" +
+			                                                 "charset=utf8");
 
 			try
 			{
@@ -55,13 +54,13 @@ namespace DatabaseTest
 			{
 				// Creates the Table
 				// INSERT Schedule where the space is
-				string query = "CREATE TABLE " + table + @"(
+				string query = "CREATE TABLE " + "homeinfo" + @"(
 						RoomName VARCHAR(150) PRIMARY KEY, 
 						SetTemp INT(3), 
 						RoomTemp INT(3),
 						
-						VentStatus VARCHAR(5),
-						HeatCoolOff VARCHAR(3))";
+						VentStatus VARCHAR(6),
+						HeatCoolOff VARCHAR(4))";
 				MySqlCommand cmd = new MySqlCommand(query, connection);
 				cmd.ExecuteNonQuery();
 				Toast.MakeText(this, "Table Created", ToastLength.Short).Show();
@@ -81,7 +80,7 @@ namespace DatabaseTest
 
 			try
 			{
-				string read = "SELECT RoomName FROM " + table;
+				string read = "SELECT RoomName FROM " + "homeinfo";
 				MySqlCommand roomlist = new MySqlCommand(read, connection);
 				MySqlDataReader rooms = roomlist.ExecuteReader();
 				while (rooms.Read())
@@ -104,6 +103,7 @@ namespace DatabaseTest
 
 			// This updaates the will get the set temp for the item selected in the dropdown list
 			string replaceRoomname = "";
+			string currentRoomname = "";
 			try
 			{
 
@@ -112,7 +112,6 @@ namespace DatabaseTest
 					int position = dropdown_ItemSelected(sender, e);
 					currentRoomname = (string)dropdown.GetItemAtPosition(position);
 					replaceRoomname = currentRoomname.Replace("'", "''");
-					//string DBsetTemp = "SELECT SetTemp FROM homeinfo WHERE RoomName ='" + dropdown.GetItemAtPosition(position) + "'";
 					string DBsetTemp = "SELECT SetTemp FROM homeinfo WHERE RoomName ='" + replaceRoomname + "'";
 					MySqlCommand cmdsetTemp = new MySqlCommand(DBsetTemp, connection);
 					MySqlDataReader readsetTemp = cmdsetTemp.ExecuteReader();
@@ -125,6 +124,18 @@ namespace DatabaseTest
 					Temp = realSetTemp[0];
 					setTemp.Text = realSetTemp[0] + " Degrees";
 					readsetTemp.Close();
+
+					DBsetTemp = "SELECT RoomTemp FROM homeinfo WHERE RoomName ='" + replaceRoomname + "'";
+					cmdsetTemp = new MySqlCommand(DBsetTemp, connection);
+					readsetTemp = cmdsetTemp.ExecuteReader();
+					realSetTemp = new List<int>();
+					while (readsetTemp.Read())
+					{
+						var myString = readsetTemp.GetInt32(0); //The 0 stands for "the 0'th column", so the first column of the result.
+						realSetTemp.Add(myString); // Adds them to a list
+					}
+					Temp = realSetTemp[0];
+					realTemp.Text = realSetTemp[0] + " Degrees";
 				};
 			}
 			catch (MySqlException ex)
@@ -135,7 +146,7 @@ namespace DatabaseTest
 			HotButton.Click += (object sender, EventArgs e) =>
 			{
 				int hotTemp = ++Temp;
-				MySqlCommand hot = new MySqlCommand("UPDATE homeinfo SET SetTemp='"+hotTemp+"' WHERE RoomName = '"+ replaceRoomname +"'",connection);
+				MySqlCommand hot = new MySqlCommand("UPDATE homeinfo SET SetTemp='" + hotTemp + "' WHERE RoomName = '" + replaceRoomname + "'", connection);
 				hot.ExecuteNonQuery();
 				setTemp.Text = string.Format("{0} Degrees", hotTemp);
 				//var insertdata = insertUpdateData(new Room { SetTemp = txtResult.Text }, pathToDatabase);
@@ -159,15 +170,14 @@ namespace DatabaseTest
 			Button EditSettings = FindViewById<Button>(Resource.Id.Edit);
 			//EditSettings.Click += (object sender, EventArgs e) =>
 			//	StartActivity(typeof(EditData));
-			EditSettings.Click += delegate {
-				var Edit= new Intent(this, typeof(EditData));
+			EditSettings.Click += delegate
+			{
+				var Edit = new Intent(this, typeof(EditData));
 				Edit.PutExtra("roomData", currentRoomname);
 				//Edit.PutExtra("roomData", 15);
 				StartActivity(Edit);
-};
+			};
 		}
-
-
 		// PUT NEW CLASSES HERE!!!
 		//
 		//
@@ -184,81 +194,7 @@ namespace DatabaseTest
 			catch
 			{
 				Toast.MakeText(this, "Position Incorrect", ToastLength.Short).Show();
-				return 0;}
-
-		}
-
-		// FAILED ATTEMPT WITH SQLITE
-		//
-		//
-		// Creates the Database
-		private string createDatabase(string path)
-		{
-			try
-			{
-				var connection = new SQLiteConnection(path);
-				connection.CreateTable<Room>();
-				return "Database created";
-			}
-			catch (SQLiteException ex)
-			{
-				return ex.Message;
-			}
-		}
-		private void connectDB()
-		{
-
-		}
-
-		// Updates single parts for database
-		private string insertUpdateData(Room data, string path)
-		{
-			try
-			{
-				var db = new SQLiteConnection(path);
-				if (db.Insert(data) != 0)
-					db.Update(data);
-				return "Single data file inserted or updated";
-			}
-			catch (SQLiteException ex)
-			{
-				return ex.Message;
-			}
-		}
-
-		// Update all components
-		private string insertUpdateAllData(IEnumerable<Room> data, string path)
-		{
-			try
-			{
-				var db = new SQLiteConnection(path);
-				if (db.InsertAll(data) != 0)
-					db.UpdateAll(data);
-				return "List of data inserted or updated";
-			}
-			catch (SQLiteException ex)
-			{
-				return ex.Message;
-			}
-		}
-
-		// Find recrods from Primary key
-		private int findNumberRecords(string path)
-		{
-			try
-			{
-				var db = new SQLiteConnection(path);
-				// this counts all records in the database, it can be slow depending on the size of the database
-				var count = db.ExecuteScalar<int>("SELECT Count(*) FROM Person");
-
-				// for a non-parameterless query
-				// var count = db.ExecuteScalar<int>("SELECT Count(*) FROM Person WHERE FirstName="Amy");
-
-				return count;
-			}
-			catch (SQLiteException)
-			{
-				return -1;
+				return 0;
 			}
 		}
 	}
