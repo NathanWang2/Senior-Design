@@ -27,10 +27,10 @@ try:
     TABLES['homeinfo'] = (
     "CREATE TABLE `homeinfo` ("
     "  `roomName` varchar(150) NOT NULL,"
-    "  `SetTemp` int(3) NOT NULL,"
-    "  `RoomTemp` int(3) NOT NULL,"
-    "  `VentStatus` varchar(6) NOT NULL,"
-    "  `HeatCoolOff` varchar(4) NOT NULL,"
+    "  `setTemp` int(3) NOT NULL,"
+    "  `roomTemp` int(3) NOT NULL,"
+    "  `ventStatus` varchar(6) NOT NULL,"
+    "  `heatCoolOff` varchar(4) NOT NULL,"
     "  PRIMARY KEY (`roomName`)"
     ") ENGINE=InnoDB")
     cursor.execute(TABLES['homeinfo'])
@@ -52,7 +52,7 @@ def NewRoom(cursor,insert_RoomName):
 # Writes to Room Temp by which Room Name is Selected
 def UpdateRoomTemp(cursor,realTemp,current_roomName):
     try:
-        add_RoomTemp = ("UPDATE homeinfo SET RoomTemp = %s WHERE roomName = %s")
+        add_RoomTemp = ("UPDATE homeinfo SET roomTemp = %s WHERE roomName = %s")
         cursor.execute(add_RoomTemp,(realTemp,current_roomName))
         conn.commit()
         print ("Updated Room Temp")
@@ -75,12 +75,12 @@ def RoomNameList(cursor):
 # Write current Room Temp to Database
 def UpdateSetTemp(cursor, setTemp,current_roomName):
     try:
-        update_SetTemp = ("UPDATE homeinfo SET SetTemp = %s WHERE roomName = %s")
+        update_SetTemp = ("UPDATE homeinfo SET setTemp = %s WHERE roomName = %s")
         cursor.execute(update_SetTemp,(setTemp,current_roomName))
         conn.commit()
         print('Updated Set Temp')
     except:
         print ('Did not update Room Set Temp')
-UpdateSetTemp(cursor, 72, 'function')
+
 # Closes Connection
 conn.close()
