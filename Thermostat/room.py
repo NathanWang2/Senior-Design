@@ -3,6 +3,8 @@ import time
 import json
 import socket
 import threading
+from DatabaseTest import *
+
 onPi = False
 if (onPi): import RPi.GPIO as GPIO
 
@@ -10,38 +12,84 @@ from PyQt4 import QtGui, QtCore
 from functools import partial
 
 if (onPi): GPIO.setmode(GPIO.BOARD)
-VENT_OPEN = 11.5
-VENT_CLOSED = 3
+VENT_OPEN = 3.6
+VENT_CLOSED = 7.0
+VENT_TRANSITION_TIME = 0.4
 
-class Vent(object):
+class Relay:
+    COOL_PIN = 7
+    HEAT_PIN = 13
+    FAN_PIN = 11
+    def __init__(self):
+        GPIO.setup(self.COOL_PIN, GPIO.OUT)
+        GPIO.setup(self.HEAT_PIN, GPIO.OUT)
+        GPIO.setup(self.FAN_PIN, GPIO.OUT)
+
+    def turnAllOff(self):
+        GPIO.output(self.COOL_PIN, 0)
+        GPIO.output(self.HEAT_PIN, 0)
+        GPIO.output(self.FAN_PIN, 0)
+
+    def turnCoolOn(self):
+        self.turnHeatOff()
+        GPIO.output(self.COOL_PIN, 1)
+
+    def turnCoolOff(self):
+        GPIO.output(self.COOL_PIN, 0)
+
+    def turnHeatOn(self):
+        self.turnCoolOff()
+        GPIO.output(self.HEAT_PIN, 1)
+
+    def turnHeatOff(self):
+        GPIO.output(self.HEAT_PIN, 0)
+
+    def turnFanOn(self):
+        GPIO.output(self.FAN_PIN, 1)
+
+    def turnFanOff(self):
+        GPIO.output(self.FAN_PIN, 0)
+    
+class Vent:
     pin = None
     pwm = None
+    isOpen = None
 
     def __init__(self, pin):
         self.pin = pin
         if (onPi): GPIO.setup(pin, GPIO.OUT)
         if (onPi): self.pwm = GPIO.PWM(pin, 50)
+        if (onPi): self.pwm.start(VENT_OPEN)
+        time.sleep(VENT_TRANSITION_TIME)
         if (onPi): self.pwm.start(0)
+        self.open_vent()
+
 
     def open_vent(self):
+        if self.isOpen:
+            return
         if (onPi): self.pwm.ChangeDutyCycle(VENT_OPEN)
-        else: print("Vent open..")
-        time.sleep(0.3)
+        print("Vent " + str(self.pin) + " open..")
+        time.sleep(VENT_TRANSITION_TIME)
         if (onPi): self.pwm.ChangeDutyCycle(0)
+        self.isOpen = True
 
     def close_vent(self):
+        if not self.isOpen:
+            return
         if (onPi): self.pwm.ChangeDutyCycle(VENT_CLOSED)
-        else: print("Vent closed..")
-        time.sleep(0.3)
+        print("Vent " + str(self.pin) + " closed..")
+        time.sleep(VENT_TRANSITION_TIME)
         if (onPi): self.pwm.ChangeDutyCycle(0)
+        self.isOpen = False
         
 
-class Room(object):
+class Room:
     current_temp = 0
     set_temp = 70
     name = "Test"
     probe_ip = None
-    vents = []
+    #vents = []
     schedules = []
 
     def __init__(self, _current_temp = None, _set_temp = None, _name = None, _probe_ip = None):
@@ -49,6 +97,7 @@ class Room(object):
         self.set_temp = _set_temp
         self.name = _name
         self.probe_ip = _probe_ip
+        self.vents = []
 
     def inc_set_temp(self):
         self.set_temp += 1
@@ -81,8 +130,9 @@ class Room(object):
         for schedule in data['schedules']:
             self.schedules.append(schedule)
 
-    def add_vent(self, vent):
-        self.vents.append(vent)
+    def add_vent(self, vent_pin):
+        new_vent = Vent(vent_pin)
+        self.vents.append(new_vent)
 
     def add_temp_probe(self, probe):
         self.temperature_probe = probe
@@ -121,7 +171,7 @@ class Window(QtGui.QMainWindow):
         self.refresh_window(self)
 
         if (_title != "main"):
-            homeBtn = Button("HOME", self, 0, 0)
+            homeBtn = Button("HOME", self, 20, 270)
             homeBtn.clicked.connect(self.go_home)
 
     def close_application(self):
@@ -172,7 +222,7 @@ class MainWindow(Window):
 
     def goto_room(self, room):
         self.nextWindow = RoomW
-        RoomW.update_room(room)
+        RoomW.update_to_room(room)
         self.change_windows()
 
 class SettingsWindow(Window):
@@ -234,7 +284,7 @@ class RoomWindow(Window):
     def setup(self):
 
         self.roomLabel = Label(self.current_room.name, self, 20, 20, 240, 50, 12)
-        self.actTemp = Label(str(self.current_room.current_temp), self, 30, 30, 240, 240, 70)
+        self.actTemp = Label(str(self.current_room.current_temp), self, 30, 30, 240, 240, 30)
 
 
         btn3 = Button("/ Up \\", self, 240, 20, 100, 100)
@@ -249,15 +299,16 @@ class RoomWindow(Window):
     def inc_temp(self):
         self.current_room.inc_set_temp()
         self.setTemp.setText(str(self.current_room.set_temp))
-        self.current_room.open_vents()
 
     def dec_temp(self):
         self.current_room.dec_set_temp()
         self.setTemp.setText(str(self.current_room.set_temp))
-        self.current_room.close_vents()
 
-    def update_room(self, room):
+    def update_to_room(self, room):
         self.current_room = room
+        self.update_room()
+
+    def update_room(self):
         self.roomLabel.setText(self.current_room.name)
         self.actTemp.setText(str(self.current_room.current_temp))
         self.setTemp.setText(str(self.current_room.set_temp))
@@ -266,8 +317,13 @@ class ScheduleWindow(Window):
     def setup(self):
         return
 
-xPos = 100
-yPos = 100
+if (onPi):
+    xPos = 0
+    yPos = -1
+else:
+    xPos = 100 #0
+    yPos = 100 #-1
+
 width = 480
 height = 320
 colorPal = QtGui.QPalette()
@@ -281,9 +337,19 @@ RoomW = RoomWindow("room")
 ScheduleW = ScheduleWindow("schedule")
 
 rooms = []
-rooms.append(Room(1, 1, "Room 1", "192.168.41.44"))
-rooms.append(Room(2, 2, "Room 2", "192.168.41.44"))
-rooms.append(Room(3, 3, "Room 3", "192.168.41.44"))
+room1 = Room(72, 72, "Room 1", "192.168.43.206")
+room1.add_vent(15)
+rooms.append(room1)
+room2 = Room(72, 72, "Room 2", "192.168.43.44")
+room2.add_vent(10)
+rooms.append(room2)
+#room3 = Room(72, 72, "Room 3", "192.168.43.105")
+#room1.add_vent(10)
+#rooms.append(room3)
+for room in rooms:
+    print("Room " + room.name)
+    for vent in room.vents:
+        print("  vent " + str(vent.pin))
 
 
 def create_room(_current_temp, _set_temp, _name, _vents):
@@ -313,7 +379,7 @@ def save_rooms():
 
 def get_tempF_from_probe(probe_ip):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(probe_ip, 80)
+    s.connect((probe_ip, 80))
     s.send("temp")
     temp = ''
     while 1:
@@ -326,19 +392,30 @@ def get_tempF_from_probe(probe_ip):
 
 def monitor_system():
     ac_mode = "cool"
-
+    fanOn = False
+    NewRoom("TEST")
+    RoomNameList()
+    
+    if (onPi):
+        relay = Relay()
+        
     while(True):
         rooms_to_condition = []
         too_high = []
         too_low = []
 
         for room in rooms:
-            #room.current_temp = get_tempF_from_probe(room.probe_ip)
+            try:
+                room.current_temp = get_tempF_from_probe(room.probe_ip)
+            except:
+                pass
+
             if (room.current_temp > room.set_temp + 2):
                 too_high.append(room)
             elif (room.current_temp < room.set_temp - 2):
                 too_low.append(room)
 
+        RoomW.update_room()
         if (len(too_high) > 0 and len(too_low) > 0):
             # notify user that rooms need cool AND heat
             pass
@@ -361,19 +438,45 @@ def monitor_system():
                 rooms_to_condition = too_low
 
         if (len(rooms_to_condition) > (len(rooms) / 3)):
-            # condition rooms
-            pass
+            print("Rooms need conditioning")
+            if (onPi):
+                for room in rooms:
+                    if (room in rooms_to_condition):
+                        print("Opening vents for " + room.name)
+                        room.open_vents()
+                    else:
+                        print("Closing vents for " + room.name)
+                        room.close_vents()
+
+                if (ac_mode == "cool"):
+                    relay.turnCoolOn()
+                    #relay.turnFanOn()
+                    print("COOLING")
+                elif (ac_mode == "heat"):
+                    relay.turnHeatOn()
+                    #relay.turnFanOn()
+                    print("HEATING")
+
+                if (fanOn):
+                    relay.turnFanOn()
+        else:
+            if (onPi):
+                relay.turnAllOff()
+            else:
+                pass
+            
+        print("Checked room condition size")    
 
         if (len(rooms_to_condition) > 0):
             print("Rooms to " + ac_mode)
             for room in rooms_to_condition:
                 print room.name,
             print
-        time.sleep(5)
+        time.sleep(1)
 
 # motor pin 7
 
-save_rooms()
+#save_rooms()
 #load_rooms()
 
 MainW.setup()

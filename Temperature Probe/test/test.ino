@@ -4,8 +4,8 @@
 #include <OneWire.h>
 
 // WiFi parameters to be configured
-const char* ssid = "The Asian's";
-const char* password = "somethingsimple";
+const char* ssid = "crunchytown";
+const char* password = "zxasqw12";
 
 #define ONE_WIRE_BUS 2  // DS18B20 pin
 OneWire oneWire(ONE_WIRE_BUS);
@@ -61,7 +61,7 @@ void loop(void)
         temp = DS18B20.getTempCByIndex(0);
       } while (temp == 85.0 || temp == (-127.0));  
     Serial.print("Temperature: ");
-    Serial.println(temp);
+    Serial.println(temp * 9 / 5 + 32);
       
     client.print(temp);
       
