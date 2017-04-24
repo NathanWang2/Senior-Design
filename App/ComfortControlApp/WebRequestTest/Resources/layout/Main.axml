@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+        <Button
+            android:text="Add New Room"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/CreateDB" />
+        <ImageButton
+            android:id="@+id/refresh"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/refresh" />
+        <Button
+            android:text="Edit Room Name"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:id="@+id/Edit" />
+    <!--android:layout_alignParentRight="true" -->
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="#E0EEEE">
+    <!--  android:prompt="@string/DropdownPrompt" -->
+        <Spinner
+            android:text="Room Name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            android:spinnerMode="dropdown"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_marginBottom="60dp"
+            android:id="@+id/Roomname" />
+    <!--android:layout_below="@id/Roomname"-->
+        <TextView
+            android:text="Room Temp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:textColor="@android:color/black"
+            android:layout_centerVertical="true"
+            android:id="@+id/realTemp"
+            android:gravity="center" />
+        <TextView
+            android:text="SetTemp"
+            android:layout_width="110dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="15dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/realTemp"
+            android:textColor="@android:color/black"
+            android:textSize="20dp"
+            android:id="@+id/setTemp"
+            android:gravity="center" />
+        <ImageButton
+            android:id="@+id/HotButton"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginRight="17dp"
+            android:background="#E0EEEE"
+            android:layout_above="@id/setTemp"
+            android:layout_alignRight="@id/setTemp"
+            android:padding="100dip"
+            android:src="@drawable/hot" />
+        <ImageButton
+            android:id="@+id/ColdButton"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginRight="17dp"
+            android:background="#E0EEEE"
+            android:layout_below="@id/setTemp"
+            android:layout_alignEnd="@id/setTemp"
+            android:padding="100dip"
+            android:src="@drawable/cold" />
+    </RelativeLayout>
+</LinearLayout>
