@@ -26,10 +26,16 @@ namespace WebRequestTest
 			SetContentView(Resource.Layout.InsertInfo);
 			// Create your application here
 			Button SaveData = FindViewById<Button>(Resource.Id.SaveData);
+			EditText Roomname = FindViewById<EditText>(Resource.Id.RoomName);
+			EditText setTemp = FindViewById<EditText>(Resource.Id.setTemp);
 			SaveData.Click += (object sender, EventArgs e) =>
 			{
-				EditText roomname = FindViewById<EditText>(Resource.Id.RoomName);
-				EditText roomSetTemp = FindViewById<EditText>(Resource.Id.setTemp);
+				if (setTemp.Text == "")
+				{
+					setTemp.Text = "70";
+				};
+				create_room(Roomname.Text, Convert.ToInt32(setTemp.Text));
+				//Toast.MakeText(this, "make new room", ToastLength.Short);
 				StartActivity(typeof(MainActivity));
 			};
 
@@ -44,10 +50,11 @@ namespace WebRequestTest
 			foreach (KeyValuePair<string, object> parm in parms)
 			{
 				if (parm.Value == null) continue; // ignore null parms
-				url += $"{parm.Key}={parm.Value.ToString()}&";
+				url += $"{parm.Key}=\"{parm.Value.ToString()}\"&";
 			}
 			return url.TrimEnd('&');
 		}
+
 
 		// makes a request to create a room with the passed arguments.
 		// some arguments are optional and won't be added to the

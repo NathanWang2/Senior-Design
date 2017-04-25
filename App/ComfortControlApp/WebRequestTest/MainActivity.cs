@@ -33,8 +33,6 @@ namespace WebRequestTest
 			TextView realTemp = FindViewById<TextView>(Resource.Id.realTemp);
 			Spinner dropdown = FindViewById<Spinner>(Resource.Id.Roomname);
 
-
-			string result = string.Format("{0}", get_room("WaterBottle").data[0].setTemp) + " degrees";
 			//result = string.Format(get_room("").data[0].roomName);
 			//setTemp.Text = result;
 			var namelist = new List<string>();
@@ -47,14 +45,12 @@ namespace WebRequestTest
 				}
 				var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, namelist);
 				dropdown.Adapter = adapter;
-
-				Toast.MakeText(this, "It Worked!", ToastLength.Short).Show();
 			}
 			catch
 			{
 				namelist = new List<string>() { "Not Connected" };
 				var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, namelist);
-				Toast.MakeText(this, "It Broke with no names", ToastLength.Short).Show();
+				Toast.MakeText(this, "It was unable to connect", ToastLength.Short).Show();
 			}
 
 			string currentRoomname = "";
@@ -65,12 +61,12 @@ namespace WebRequestTest
 				{
 					int position = dropdown_ItemSelected(sender, e);
 					currentRoomname = (string)dropdown.GetItemAtPosition(position);
-					Toast.MakeText(this, position.ToString() , ToastLength.Short).Show();
+					//Toast.MakeText(this, position.ToString() , ToastLength.Short).Show();
 					tempPosition = get_room("").data[position].setTemp;
-					Toast.MakeText(this, tempPosition.ToString(), ToastLength.Short);
+					//Toast.MakeText(this, tempPosition.ToString(), ToastLength.Short);
 					Temp = get_room("").data[position].setTemp;
-					setTemp.Text = Temp.ToString();
-					realTemp.Text = get_room("").data[position].roomTemp.ToString();
+					setTemp.Text = Temp.ToString() + " Degrees";
+					realTemp.Text = get_room("").data[position].roomTemp.ToString() + " Degrees";
 				//Toast.MakeText(this, get_room("").data[position].setTemp.ToString(), ToastLength.Short).Show();
 
 				};
@@ -102,14 +98,19 @@ namespace WebRequestTest
 			Button newEntry = FindViewById<Button>(Resource.Id.CreateDB);
 			newEntry.Click += (object sender, EventArgs e) =>
 			{
+				//create_room("abcdefghijklmnopqrstuvwxyz");
 				StartActivity(typeof(InsertInfoActivity));
+				//Toast.MakeText(this, "You are making a new room", ToastLength.Long).Show();
 			};
 			// Lets the user change the selected room information
+			/*
 			Button EditSettings = FindViewById<Button>(Resource.Id.Edit);
 			EditSettings.Click += (object sender, EventArgs e) =>
 			{
 				StartActivity(typeof(EditData));
 			};
+			*/
+
 			/*
 			 * 		int count = 1;
 			//Test for creating new room
@@ -134,7 +135,7 @@ namespace WebRequestTest
 		{
 			Spinner spinner = (Spinner)sender;
 			string toast = string.Format("The room is {0}", spinner.GetItemAtPosition(e.Position));
-			Toast.MakeText(this, toast, ToastLength.Long).Show();
+			//Toast.MakeText(this, toast, ToastLength.Long).Show();
 			try
 			{
 				return e.Position;
@@ -161,6 +162,18 @@ namespace WebRequestTest
 			return url.TrimEnd('&');
 		}
 
+		static string add_parameters_create(string url, Dictionary<string, object> parms)
+		{
+			// 
+			url += "?";
+			foreach (KeyValuePair<string, object> parm in parms)
+			{
+				if (parm.Value == null) continue; // ignore null parms
+				url += $"{parm.Key}=\"{parm.Value.ToString()}\"&";
+			}
+			return url.TrimEnd('&');
+		}
+
 		// makes a request to create a room with the passed arguments.
 		// some arguments are optional and won't be added to the
 		// if not passed
@@ -181,7 +194,7 @@ namespace WebRequestTest
 				{ "heat_cool_off", heat_cool_off }
 			};
 			// add parms to url
-			string request_url = add_parameters(create_room_url, parameters);
+			string request_url = add_parameters_create(create_room_url, parameters);
 			// make request and get json response
 			string json_response = get_response(request_url);
 			// deserialize json response into CreateRoomResponse object

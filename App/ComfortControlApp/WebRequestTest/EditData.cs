@@ -29,7 +29,7 @@ namespace WebRequestTest
 			SetContentView(Resource.Layout.EditEntry);
 
 			TextView RoomTitle = FindViewById<TextView>(Resource.Id.RoomTitle);
-			RoomTitle.Text = "Roomname that will be changed";
+			RoomTitle.Text = "Room name that will be changed";
 			TextView TitleRoomNameID = FindViewById<TextView>(Resource.Id.curentRoomname);
 			TitleRoomNameID.Text = "Test Room";
 			EditText updateInfo = FindViewById<EditText>(Resource.Id.UpdateInfo);

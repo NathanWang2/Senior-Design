@@ -79,8 +79,9 @@
     <AndroidResource Include="Resources\drawable\hot.png" />
     <AndroidResource Include="Resources\drawable\refresh.png" />
     <AndroidResource Include="Resources\layout\EditEntry.axml" />
-    <AndroidResource Include="Resources\layout\InsertInfo.axml" />
     <AndroidResource Include="Resources\layout\Main.axml" />
+    <AndroidResource Include="Resources\layout\InsertInfo.axml" />
+    <AndroidResource Include="Resources\drawable\PhoneLogo.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\drawable\" />

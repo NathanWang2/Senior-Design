@@ -14,16 +14,18 @@
             android:id="@+id/CreateDB" />
         <ImageButton
             android:id="@+id/refresh"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentRight="true"
             android:src="@drawable/refresh" />
+    <!--
         <Button
             android:text="Edit Room Name"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_centerInParent="true"
             android:id="@+id/Edit" />
+		-->
     <!--android:layout_alignParentRight="true" -->
     </RelativeLayout>
     <RelativeLayout
@@ -43,12 +45,21 @@
     <!--android:layout_below="@id/Roomname"-->
         <TextView
             android:text="Room Temp"
-            android:layout_width="80dp"
+            android:layout_width="110dp"
             android:layout_height="80dp"
             android:textColor="@android:color/black"
             android:layout_centerVertical="true"
+            android:textSize="20dp"
             android:id="@+id/realTemp"
             android:gravity="center" />
+        <TextView
+            android:text="Room Temp"
+            android:layout_width="110dp"
+            android:layout_height="80dp"
+            android:textColor="@android:color/black"
+            android:layout_below="@id/Roomname"
+            android:textSize="20dp"
+            android:id="@+id/RoomHeader" />
         <TextView
             android:text="SetTemp"
             android:layout_width="110dp"
@@ -81,4 +92,9 @@
             android:padding="100dip"
             android:src="@drawable/cold" />
     </RelativeLayout>
+    <ImageView
+        android:id="@+id/PhoneLogo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/PhoneLogo" />
 </LinearLayout>
