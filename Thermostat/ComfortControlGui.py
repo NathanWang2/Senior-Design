@@ -1,9 +1,12 @@
 import socket
 import threading
-from DatabaseTest import *
+#from DatabaseTest import *
 from models import *
+import wifi
+#import netifaces as ni
+import requests
 
-onPi = False
+onPi = True
 if (onPi): import RPi.GPIO as GPIO
 
 from PyQt4 import QtGui, QtCore
@@ -16,9 +19,9 @@ VENT_TRANSITION_TIME = 0.4
 
 
 class Relay:
-    COOL_PIN = 7
-    HEAT_PIN = 13
-    FAN_PIN = 11
+    HEAT_PIN = 36
+    COOL_PIN = 38
+    FAN_PIN = 40
 
     def __init__(self):
         GPIO.setup(self.COOL_PIN, GPIO.OUT)
@@ -97,8 +100,8 @@ class MainWindow(Window):
         refresh_btn = Button("REFRESH", self, 30, 250, 200, 50)
         refresh_btn.clicked.connect(self.update_rooms)
 
-        add_room_btn = Button("ADD ROOM", self, 30, 190, 200, 50)
-        add_room_btn.clicked.connect(self.goto_addRoom)
+        #add_room_btn = Button("ADD ROOM", self, 30, 190, 200, 50)
+        #add_room_btn.clicked.connect(self.goto_addRoom)
 
         y_inc = 60
         place_y = 70
@@ -285,10 +288,12 @@ class RoomWindow(Window):
 
     def inc_temp(self):
         self.current_room.inc_set_temp()
+        UpdateSetTemp(self.current_room.set_temp, self.current_room.name)
         self.setTemp.setText(str(self.current_room.set_temp))
 
     def dec_temp(self):
         self.current_room.dec_set_temp()
+        UpdateSetTemp(self.current_room.set_temp, self.current_room.name)
         self.setTemp.setText(str(self.current_room.set_temp))
 
     def update_to_room(self, room):
@@ -297,8 +302,10 @@ class RoomWindow(Window):
 
     def update_room(self):
         self.roomLabel.setText(self.current_room.name)
-        self.actTemp.setText(str(self.current_room.current_temp))
-        self.setTemp.setText(str(self.current_room.set_temp))
+        if (self.current_room.current_temp != None):
+            self.actTemp.setText(str(int(self.current_room.current_temp)))
+        if (self.current_room.set_temp != None):
+            self.setTemp.setText(str(int(self.current_room.set_temp)))
 
 
 class ScheduleWindow(Window):
@@ -328,19 +335,91 @@ RoomW = RoomWindow("room")
 ScheduleW = ScheduleWindow("schedule")
 
 rooms = []
-room1 = Room(72, 72, "Room 1", "192.168.43.206")
-room1.add_vent(15)
+print("Starting")
+room1 = Room(72, 72, "Room 1", "192.168.43.206") # "192.168.1.6")
+print("Created room 1")
+room1.add_vent(35, "192.168.43.44") # "192.168.1.5")
+print("Added vent to room 1")
 rooms.append(room1)
-room2 = Room(72, 72, "Room 2", "192.168.43.44")
-room2.add_vent(10)
+print("Added room to rooms")
+room2 = Room(72, 72, "Room 2", "192.168.43.88")
+room2.add_vent(37, "192.168.43.217")
 rooms.append(room2)
-# room3 = Room(72, 72, "Room 3", "192.168.43.105")
-# room1.add_vent(10)
-# rooms.append(room3)
+
 for room in rooms:
     print("Room " + room.name)
     for vent in room.vents:
         print("  vent " + str(vent.pin))
+
+home_ssid = ""
+home_pass = ""
+home_scheme = None
+therm_ip = ""
+
+def connectToHome(ssid = None, passkey = None):
+    global home_ssid, pass_key
+
+    if (ssid == None):
+        with open('home_wifi.json', 'r') as wf:
+            data = json.loads(wf)
+    else:
+        with open('home_wifi.json', 'w') as wf:
+            data = json.dump(wf, {'ssid':ssid, 'passkey':passkey})
+    home_ssid = ssid
+    home_pass = passkey
+    home_scheme = wifi.connect(ssid,passkey)
+    #ni.ifaddresses('wlan0')
+    #ip = ni.ifaddresses('wlan0')[2][0]['addr']
+
+def connectProbe():
+
+    wifi.connect('CC Temp Probe')
+    response = urllib2.urlopen('http://192.168.4.1/wifisave?s={}&p={}'.format(ssid, pass_key))
+    home_scheme.save()
+    home_scheme.activate()
+
+def makeServerRequest(script, payload = None):
+    url = 'https://797862787b.dataplicity.io/'+script+'.php'
+    print(url)
+    default_timeout = 1.0
+    if payload != None:
+        r = requests.get(url, params=payload, timeout=default_timeout)
+    else:
+        r = requests.get(url, timeout=default_timeout)
+    return r.json()
+
+def UpdateRoomTemp(realTemp, roomName):
+    payload = {'room_name':roomName,
+               'room_temp':realTemp}
+    response = makeServerRequest('update_room_temp', payload)
+    return response['success']
+
+def UpdateSetTemp(setTemp, roomName):
+    payload = {'room_name':roomName,
+               'set_temp':setTemp}
+    response = makeServerRequest('update_set_temp', payload)
+    return response['success']
+
+def UpdateRoomList():
+    global rooms
+    updated_rooms = rooms
+    current_room_names = [r.name for r in rooms]
+    response = makeServerRequest('get_room')
+    if (not response['success']):
+        return
+    db_rooms = response['data']
+    for db_room in db_rooms:
+        if db_room['roomName'] not in current_room_names:
+            print ("Adding room :" + db_room['roomName'])
+            rooms.append(Room(None, int(db_room['setTemp']), db_room['roomName']))
+    #return updated_rooms
+
+def GetSetTemp(roomName):
+    payload = {'room_name':roomName}
+    response = makeServerRequest('get_room', payload)
+    if (response['success']):
+        return int(response['data'][0]['setTemp'])
+    return 70
 
 
 def create_room(_current_temp, _set_temp, _name, _vents):
@@ -397,21 +476,32 @@ def monitor_system():
         rooms_to_condition = []
         too_high = []
         too_low = []
-        rooms = UpdateRoomList(rooms)
-        #MainW.update_rooms()
+        try:
+            UpdateRoomList()
+        except:
+            print("Failed to update rooms from database")
+        MainW.update_rooms()
 
         for room in rooms:
             try:
+                print("Getting temp for room: " + room.name)
                 room.current_temp = get_tempF_from_probe(room.probe_ip)
-                UpdateRoomTemp(room.current_temp, room.name)
-                UpdateSetTemp(room.set_temp, room.name)
-
-                if (room.current_temp > room.set_temp + 2):
-                    too_high.append(room)
-                elif (room.current_temp < room.set_temp - 2):
-                    too_low.append(room)
             except:
+                print("Failed to get temp from room: " + room.name)
+
+            try:
+                room.set_temp = GetSetTemp(room.name)
+                UpdateRoomTemp(room.current_temp, room.name)
+            except:
+                print("Failed to update room/set temp for room: " + room.name)
                 pass
+
+            if (room.current_temp > room.set_temp + 2):
+                too_high.append(room)
+            elif (room.current_temp < room.set_temp - 2):
+                too_low.append(room)
+            else:
+                room.close_vents()
 
 
         RoomW.update_room()

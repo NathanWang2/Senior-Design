@@ -1,15 +1,13 @@
-#include <DallasTemperature.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <OneWire.h>
 
 // WiFi parameters to be configured
 const char* ssid = "crunchytown";
 const char* password = "zxasqw12";
 
-#define ONE_WIRE_BUS 2  // DS18B20 pin
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature DS18B20(&oneWire);
+#define SERVO_PIN 2 
+#define VENT_OPEN 900
+#define VENT_CLOSED 1500
 
 float oldTemp;
 WiFiServer server(80);
@@ -19,6 +17,7 @@ void setup(void)
 {
   delay(1000);
   Serial.begin(9600);
+  pinMode(SERVO_PIN, OUTPUT);
   
   WiFi.begin(ssid, password);
   
@@ -58,18 +57,35 @@ void loop(void)
     Serial.print("Got request: ");
     Serial.println(req);
     client.flush();
-    
-    if (req.indexOf("temp") != -1){
-      do {
-        DS18B20.requestTemperatures(); 
-        temp = DS18B20.getTempCByIndex(0);
-      } while (temp == 85.0 || temp == (-127.0));  
-    Serial.print("Temperature: ");
-    Serial.println(temp * 9 / 5 + 32);
-      
-    client.print(temp);
-      
+
+    int state;
+    if (req.indexOf("open") != -1){
+      state = VENT_OPEN;
+      Serial.println("Opening..");
     }
+    else if (req.indexOf("close") != -1){
+      state = VENT_CLOSED;
+      Serial.println("Closing..");
+    }
+    else {
+      return;
+    }
+    Serial.println("Changing state..");
+    for (int i = 0; i < 100; i++){
+      digitalWrite(SERVO_PIN, 1);
+      delayMicroseconds(state);
+      digitalWrite(SERVO_PIN, 0);
+      delayMicroseconds(20000 - state);
+    }
+    Serial.println("Done..");
+    /*
+    unsigned long start_time = millis();
+    while (millis() < (start_time + 3000)){
+      digitalWrite(SERVO_PIN, 1);
+      delayMicroseconds(state);
+      digitalWrite(SERVO_PIN, 0);
+      delayMicroseconds(20000 - state);
+    }*/
   } 
 }
 

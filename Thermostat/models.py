@@ -1,8 +1,10 @@
 import sys
 import time
 import json
+import socket
+#from ComfortControlGui import onPi
+onPi = True
 
-onPi = False
 if (onPi): import RPi.GPIO as GPIO
 
 from PyQt4 import QtGui, QtCore
@@ -17,9 +19,11 @@ class Vent:
     pin = None
     pwm = None
     isOpen = None
+    probe_ip = None
 
-    def __init__(self, pin):
+    def __init__(self, pin, probe_ip = None):
         self.pin = pin
+        self.probe_ip = probe_ip
         if (onPi): GPIO.setup(pin, GPIO.OUT)
         if (onPi): self.pwm = GPIO.PWM(pin, 50)
         if (onPi): self.pwm.start(VENT_OPEN)
@@ -30,19 +34,42 @@ class Vent:
     def open_vent(self):
         if self.isOpen:
             return
-        if (onPi): self.pwm.ChangeDutyCycle(VENT_OPEN)
+
+        ''' This is for direct connection to Pi'''
+        #if (onPi): self.pwm.ChangeDutyCycle(VENT_OPEN)
+        #time.sleep(VENT_TRANSITION_TIME)
+        #if (onPi): self.pwm.ChangeDutyCycle(0)
+
+        ''' This is for probe connection through ip '''
+        try:
+            s_open = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s_open.connect((self.probe_ip, 80))
+            s_open.send("open")
+            s_open.close()
+        except:
+            print("Failed to open vent")
+
         print("Vent " + str(self.pin) + " open..")
-        time.sleep(VENT_TRANSITION_TIME)
-        if (onPi): self.pwm.ChangeDutyCycle(0)
         self.isOpen = True
 
     def close_vent(self):
         if not self.isOpen:
             return
-        if (onPi): self.pwm.ChangeDutyCycle(VENT_CLOSED)
+        ''' This is for direction connection to Pi '''
+        # if (onPi): self.pwm.ChangeDutyCycle(VENT_CLOSED)
+        # time.sleep(VENT_TRANSITION_TIME)
+        # if (onPi): self.pwm.ChangeDutyCycle(0)
+
+        ''' This is for probe connection through ip '''
+        try:
+            s_close = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s_close.connect((self.probe_ip, 80))
+            s_close.send("close")
+            s_close.close()
+        except:
+            print("Failed to close vent")
+
         print("Vent " + str(self.pin) + " closed..")
-        time.sleep(VENT_TRANSITION_TIME)
-        if (onPi): self.pwm.ChangeDutyCycle(0)
         self.isOpen = False
 
 
@@ -92,8 +119,8 @@ class Room:
         for schedule in data['schedules']:
             self.schedules.append(schedule)
 
-    def add_vent(self, vent_pin):
-        new_vent = Vent(vent_pin)
+    def add_vent(self, vent_pin, vent_ip):
+        new_vent = Vent(vent_pin, vent_ip)
         self.vents.append(new_vent)
 
     def add_temp_probe(self, probe):

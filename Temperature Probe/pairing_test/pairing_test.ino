@@ -1,3 +1,4 @@
+#include <WiFiManager.h>
 #include <DallasTemperature.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
@@ -13,15 +14,22 @@ DallasTemperature DS18B20(&oneWire);
 
 float oldTemp;
 WiFiServer server(80);
-String therm_ip;
+
+WiFiManager wifiManager;
 
 void setup(void)
 {
   delay(1000);
   Serial.begin(9600);
-  
+
+  wifiManager.autoConnect();
+
+  /*
+  // Connect to WiFi
   WiFi.begin(ssid, password);
   
+  // while wifi not connected yet, print '.'
+  // then after it connected, get out of the loop
   while (WiFi.status() != WL_CONNECTED) {
      delay(500);
      Serial.print(".");
@@ -29,20 +37,25 @@ void setup(void)
   //print a new line, then print WiFi connected and the IP address
   Serial.println("");
   Serial.println("WiFi connected");  
-
-  //wifiManager.autoConnect("crunchytown", "zxasqw12");
   
   // Print the IP address
   Serial.println(WiFi.localIP());
-  //therm_ip = getThermIP();
-  
+  */
   server.begin();
 }
 
 void loop(void)
 {
   float temp;
-  //Serial.println("Getting client..");
+
+  do {
+    DS18B20.requestTemperatures();
+    temp = DS18B20.getTempCByIndex(0);
+  } while (temp == 85.0 || temp == (-127.0));
+  Serial.print("Temperature: ");
+  Serial.println(temp * 9 / 5 + 32);
+  /*
+  Serial.println("Getting client..");
   WiFiClient client = server.available();
   if (!client) {
     return;
@@ -71,6 +84,8 @@ void loop(void)
       
     }
   } 
+    */ 
+    delay(1000);
 }
 
 
