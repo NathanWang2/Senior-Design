@@ -1,0 +1,6 @@
+﻿namespace LastResortForReal
+{
+	class Newtonsoft
+	{
+	}
+}
